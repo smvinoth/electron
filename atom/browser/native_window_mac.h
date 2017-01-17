@@ -29,6 +29,8 @@ class NativeWindowMac : public NativeWindow,
   ~NativeWindowMac() override;
 
   // NativeWindow:
+  void AddChildWebContents(brightray::InspectableWebContents* inspectable_web_contents) override;
+
   void Close() override;
   void CloseImmediately() override;
   void Focus(bool focus) override;
