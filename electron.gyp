@@ -424,7 +424,7 @@
           'action_name': 'pdfviewer',
           'inputs': [
             '<(grit_dir)/grit.py',
-            '<@(pdf_viewer_sources)',
+            'vendor/pdf_viewer/resources.grd',
           ],
           'outputs': [
             'pdf_viewer_resouces.h',
@@ -436,7 +436,7 @@
             'python',
             '<(grit_dir)/grit.py',
             '-i',
-            '<@(pdf_viewer_sources)',
+            'vendor/pdf_viewer/resources.grd',
             'build',
             '-o',
             '<(SHARED_INTERMEDIATE_DIR)/grit',
