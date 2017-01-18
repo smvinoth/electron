@@ -239,12 +239,12 @@ Returns:
 * `event` Event
 * `input` Object - Input properties
   * `type` String - Either `keyUp` or `keyDown`
-  * `key` String - Equivalent to [KeyboardEvent.key](keyboardevent)
-  * `isAutoRepeat` Boolean - Equivalent to [KeyboardEvent.repeat](keyboardevent)
-  * `shift` Boolean - Equivalent to [KeyboardEvent.shiftKey](keyboardevent)
-  * `control` Boolean - Equivalent to [KeyboardEvent.controlKey](keyboardevent)
-  * `alt` Boolean - Equivalent to [KeyboardEvent.altKey](keyboardevent)
-  * `meta` Boolean - Equivalent to [KeyboardEvent.metaKey](keyboardevent)
+  * `key` String - Equivalent to [KeyboardEvent.key][keyboardevent]
+  * `isAutoRepeat` Boolean - Equivalent to [KeyboardEvent.repeat][keyboardevent]
+  * `shift` Boolean - Equivalent to [KeyboardEvent.shiftKey][keyboardevent]
+  * `control` Boolean - Equivalent to [KeyboardEvent.controlKey][keyboardevent]
+  * `alt` Boolean - Equivalent to [KeyboardEvent.altKey][keyboardevent]
+  * `meta` Boolean - Equivalent to [KeyboardEvent.metaKey][keyboardevent]
 
 Emitted before dispatching the `keydown` and `keyup` events in the page.
 Calling `event.preventDefault` will prevent the page `keydown`/`keyup` events
@@ -895,6 +895,8 @@ settings.
 
 The `callback` will be called with `callback(error, data)` on completion. The
 `data` is a `Buffer` that contains the generated PDF data.
+
+The `landscape` will be ignored if `@page` CSS at-rule is used in the web page.
 
 By default, an empty `options` will be regarded as:
 

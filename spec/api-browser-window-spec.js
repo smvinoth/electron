@@ -1417,6 +1417,42 @@ describe('BrowserWindow module', function () {
       })
     })
 
+    describe('kiosk state', function () {
+      // Only implemented on macOS.
+      if (process.platform !== 'darwin') return
+
+      it('can be changed with setKiosk method', function () {
+        w.destroy()
+        w = new BrowserWindow()
+        w.setKiosk(true)
+        assert.equal(w.isKiosk(), true)
+        w.setKiosk(false)
+        assert.equal(w.isKiosk(), false)
+      })
+    })
+
+    describe('fullscreen state', function () {
+      // Only implemented on macOS.
+      if (process.platform !== 'darwin') return
+
+      it('can be changed with setFullScreen method', function () {
+        w.destroy()
+        w = new BrowserWindow()
+        w.setFullScreen(true)
+        assert.equal(w.isFullScreen(), true)
+        w.setFullScreen(false)
+        assert.equal(w.isFullScreen(), false)
+      })
+
+      it('should not be changed by setKiosk method', function () {
+        w.setFullScreen(true)
+        assert.equal(w.isFullScreen(), true)
+        w.setKiosk(true)
+        w.setKiosk(false)
+        assert.equal(w.isFullScreen(), true)
+      })
+    })
+
     describe('closable state', function () {
       it('can be changed with closable option', function () {
         w.destroy()
@@ -1832,6 +1868,69 @@ describe('BrowserWindow module', function () {
         w.previewFile(__filename)
         w.closeFilePreview()
       })
+    })
+  })
+
+  describe('contextIsolation option', () => {
+    const expectedContextData = {
+      preloadContext: {
+        preloadProperty: 'number',
+        pageProperty: 'undefined',
+        typeofRequire: 'function',
+        typeofProcess: 'object',
+        typeofArrayPush: 'function',
+        typeofFunctionApply: 'function'
+      },
+      pageContext: {
+        preloadProperty: 'undefined',
+        pageProperty: 'string',
+        typeofRequire: 'undefined',
+        typeofProcess: 'undefined',
+        typeofArrayPush: 'number',
+        typeofFunctionApply: 'boolean',
+        typeofPreloadExecuteJavaScriptProperty: 'number',
+        typeofOpenedWindow: 'object',
+        documentHidden: true,
+        documentVisibilityState: 'hidden'
+      }
+    }
+
+    beforeEach(() => {
+      if (w != null) w.destroy()
+      w = new BrowserWindow({
+        show: false,
+        webPreferences: {
+          contextIsolation: true,
+          preload: path.join(fixtures, 'api', 'isolated-preload.js')
+        }
+      })
+    })
+
+    it('separates the page context from the Electron/preload context', (done) => {
+      ipcMain.once('isolated-world', (event, data) => {
+        assert.deepEqual(data, expectedContextData)
+        done()
+      })
+      w.loadURL('file://' + fixtures + '/api/isolated.html')
+    })
+
+    it('recreates the contexts on reload', (done) => {
+      w.webContents.once('did-finish-load', () => {
+        ipcMain.once('isolated-world', (event, data) => {
+          assert.deepEqual(data, expectedContextData)
+          done()
+        })
+        w.webContents.reload()
+      })
+      w.loadURL('file://' + fixtures + '/api/isolated.html')
+    })
+
+    it('enables context isolation on child windows', function (done) {
+      app.once('browser-window-created', function (event, window) {
+        assert.equal(window.webContents.getWebPreferences().contextIsolation, true)
+        done()
+      })
+      w.loadURL('file://' + fixtures + '/pages/window-open.html')
     })
   })
 
