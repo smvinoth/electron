@@ -233,13 +233,21 @@ ipcMain.on('close-on-will-navigate', (event, id) => {
 
 ipcMain.on('try-emit-web-contents-event', (event, id, eventName) => {
   const consoleWarn = console.warn
-  let lastWarning = null
+  let warningMessage = null
   console.warn = (message) => {
-    lastWarning = message
+    warningMessage = message
   }
+
   const contents = webContents.fromId(id)
+  const listenerCountBefore = contents.listenerCount(eventName)
   contents.emit(eventName, {sender: contents})
-  event.returnValue = lastWarning
+  const listenerCountAfter = contents.listenerCount(eventName)
+
+  event.returnValue = {
+    warningMessage,
+    listenerCountBefore,
+    listenerCountAfter
+  }
   console.warn = consoleWarn
 })
 
