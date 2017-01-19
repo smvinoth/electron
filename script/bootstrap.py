@@ -7,10 +7,12 @@ import sys
 
 from lib.config import LIBCHROMIUMCONTENT_COMMIT, BASE_URL, PLATFORM, \
                        enable_verbose_mode, is_verbose_mode, get_target_arch
-from lib.util import execute_stdout, get_electron_version, scoped_cwd
+from lib.util import execute_stdout, get_electron_version, scoped_cwd, \
+                     tempdir
 
 
 SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+DIST_DIR = os.path.join(SOURCE_ROOT, 'dist')
 SCRIPT_DIR = os.path.join(SOURCE_ROOT, 'script')
 VENDOR_DIR = os.path.join(SOURCE_ROOT, 'vendor')
 PYTHON_26_URL = 'https://chromium.googlesource.com/chromium/deps/python_26'
@@ -67,7 +69,7 @@ def main():
 
   version = get_electron_version()
   run_create_node_header_tarballs(version)
-  update_electron_modules('spec', args.target_arch)
+  update_electron_modules('spec', args.target_arch, version)
 
 
 def parse_args():
@@ -186,11 +188,12 @@ def update_node_modules(dirname, env=None):
       execute_stdout(args, env)
 
 
-def update_electron_modules(dirname, target_arch):
+def update_electron_modules(dirname, target_arch, version):
   env = os.environ.copy()
   env['npm_config_arch']    = target_arch
-  env['npm_config_target']  = get_electron_version()
-  env['npm_config_disturl'] = 'https://atom.io/download/electron'
+  env['npm_config_devdir']  = tempdir('node-gyp')
+  env['npm_config_tarball'] = os.path.join(DIST_DIR,
+                                           'node-{0}.tar.gz'.format(version))
   update_node_modules(dirname, env)
 
 
