@@ -11,6 +11,7 @@ from lib.util import execute_stdout, get_electron_version, scoped_cwd
 
 
 SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+SCRIPT_DIR = os.path.join(SOURCE_ROOT, 'script')
 VENDOR_DIR = os.path.join(SOURCE_ROOT, 'vendor')
 PYTHON_26_URL = 'https://chromium.googlesource.com/chromium/deps/python_26'
 
@@ -63,6 +64,9 @@ def main():
   create_chrome_version_h()
   touch_config_gypi()
   run_update(defines, args.msvs)
+
+  version = get_electron_version()
+  run_create_node_header_tarballs(version)
   update_electron_modules('spec', args.target_arch)
 
 
@@ -198,7 +202,7 @@ def update_win32_python():
 
 def build_libchromiumcontent(verbose, target_arch, defines):
   args = [sys.executable,
-          os.path.join(SOURCE_ROOT, 'script', 'build-libchromiumcontent.py')]
+          os.path.join(SCRIPT_DIR, 'build-libchromiumcontent.py')]
   if verbose:
     args += ['-v']
   if defines:
@@ -207,7 +211,7 @@ def build_libchromiumcontent(verbose, target_arch, defines):
 
 
 def update_clang():
-  execute_stdout([os.path.join(SOURCE_ROOT, 'script', 'update-clang.sh')])
+  execute_stdout([os.path.join(SCRIPT_DIR, 'update-clang.sh')])
 
 
 def download_sysroot(target_arch):
@@ -216,14 +220,14 @@ def download_sysroot(target_arch):
   if target_arch == 'x64':
     target_arch = 'amd64'
   execute_stdout([sys.executable,
-                  os.path.join(SOURCE_ROOT, 'script', 'install-sysroot.py'),
+                  os.path.join(SCRIPT_DIR, 'install-sysroot.py'),
                   '--arch', target_arch])
 
 def create_chrome_version_h():
   version_file = os.path.join(SOURCE_ROOT, 'vendor', 'brightray', 'vendor',
                               'libchromiumcontent', 'VERSION')
   target_file = os.path.join(SOURCE_ROOT, 'atom', 'common', 'chrome_version.h')
-  template_file = os.path.join(SOURCE_ROOT, 'script', 'chrome_version.h.in')
+  template_file = os.path.join(SCRIPT_DIR, 'chrome_version.h.in')
 
   with open(version_file, 'r') as f:
     version = f.read()
@@ -251,13 +255,19 @@ def touch_config_gypi():
 
 
 def run_update(defines, msvs):
-  args = [sys.executable, os.path.join(SOURCE_ROOT, 'script', 'update.py')]
+  args = [sys.executable, os.path.join(SCRIPT_DIR, 'update.py')]
   if defines:
     args += ['--defines', defines]
   if msvs:
     args += ['--msvs']
 
   execute_stdout(args)
+
+
+def run_create_node_header_tarballs(version):
+  execute_stdout([sys.executable,
+                  os.path.join(SCRIPT_DIR, 'create-node-header-tarballs.py'),
+                  '--version', version])
 
 
 if __name__ == '__main__':
