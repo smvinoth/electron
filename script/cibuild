@@ -62,7 +62,7 @@ def main():
 
   # CI's npm is not reliable.
   npm = 'npm.cmd' if PLATFORM == 'win32' else 'npm'
-  execute([npm, 'install', 'npm@2.12.1'])
+  execute([npm, 'install', 'npm@3.10.9'])
 
   log_versions()
   # Add "./node_modules/.bin" to the beginning of $PATH, which will ensure
@@ -75,7 +75,7 @@ def main():
   args = ['--target_arch=' + target_arch]
   if not is_release:
     args += ['--dev']
-  run_script('bootstrap.py', args)
+  run_script('bootstrap.py', args + ['-v'])
 
   if PLATFORM != 'win32':
     sys.stderr.write('\nRunning `npm run lint`\n')

@@ -170,8 +170,8 @@ def execute(argv, env=os.environ):
     raise e
 
 
-def execute_stdout(argv, env=os.environ):
-  if is_verbose_mode():
+def execute_stdout(argv, env=os.environ, verbose=False):
+  if is_verbose_mode() or verbose:
     print ' '.join(argv)
     try:
       subprocess.check_call(argv, env=env)

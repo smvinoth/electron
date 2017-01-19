@@ -181,19 +181,23 @@ def update_node_modules(dirname, env=None):
     # Ignore npm install errors when running in CI.
     if os.environ.has_key('CI'):
       try:
-        execute_stdout(args, env)
+        execute_stdout(args, env, verbose=True)
       except subprocess.CalledProcessError:
         pass
     else:
-      execute_stdout(args, env)
+      execute_stdout(args, env, verbose=True)
 
 
 def update_electron_modules(dirname, target_arch, version):
   env = os.environ.copy()
   env['npm_config_arch']    = target_arch
+  env['npm_config_target']  = version
   env['npm_config_devdir']  = tempdir('node-gyp')
   env['npm_config_tarball'] = os.path.join(DIST_DIR,
                                            'node-{0}.tar.gz'.format(version))
+  print 'update_electron_modules:'
+  print env['npm_config_devdir']
+  print env['npm_config_tarball']
   update_node_modules(dirname, env)
 
 
